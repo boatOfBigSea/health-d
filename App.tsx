@@ -349,7 +349,7 @@ const App: React.FC = () => {
 
       {/* Input Modal */}
       {isModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-md" onClick={() => setIsModalOpen(false)}>
+        <div className="fixed inset-0 z-50 flex items-start sm:items-center justify-center p-4 pt-20 sm:pt-4 bg-black/50 backdrop-blur-md" onClick={() => setIsModalOpen(false)}>
           <div 
             onClick={(e) => e.stopPropagation()}
             className="bg-white w-full max-w-md rounded-[32px] p-6 sm:p-8 shadow-2xl animate-in fade-in zoom-in-95 duration-200 max-h-[85vh] overflow-y-auto overflow-x-hidden"
@@ -412,7 +412,7 @@ const App: React.FC = () => {
       )}
       {/* Toast Notification */}
       {toastConfig && (
-        <div className="fixed top-4 inset-x-0 z-[100] pointer-events-none flex justify-center animate-in fade-in slide-in-from-top duration-300">
+        <div className="fixed bottom-28 inset-x-0 z-[100] pointer-events-none flex justify-center animate-in fade-in slide-in-from-bottom duration-300">
           <div className={`w-[90%] max-w-sm p-4 pointer-events-auto rounded-3xl shadow-xl flex items-start gap-3 ${toastConfig.type === 'error' ? 'bg-red-50 text-red-900 border border-red-100' : 'bg-green-50 text-green-900 border border-green-100'}`}>
             <div className="mt-0.5 flex-shrink-0">
               {toastConfig.type === 'error' ? <AlertCircle size={20} className="text-red-500" /> : <CheckCircle2 size={20} className="text-green-500" />}
