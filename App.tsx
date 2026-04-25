@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect, useMemo } from 'react';
-import { Plus, Trash2, TrendingDown, TrendingUp, Activity, Scale, Calendar, ChevronRight, Zap, BarChart3, ChevronDown, Download, Upload } from 'lucide-react';
+import { Plus, Trash2, TrendingDown, TrendingUp, Activity, Scale, Calendar, ChevronRight, Zap, BarChart3, ChevronDown, Download, Upload, AlertCircle, CheckCircle2, X } from 'lucide-react';
 import Layout from './components/Layout';
 import MetricChart, { ChartMode } from './components/MetricChart';
 import { HealthRecord } from './types';
@@ -17,6 +17,14 @@ const App: React.FC = () => {
   const [isOnline, setIsOnline] = useState(navigator.onLine);
   const [chartMode, setChartMode] = useState<ChartMode>('recent');
   const [selectedYear, setSelectedYear] = useState<string>('all');
+  const [toastConfig, setToastConfig] = useState<{title: string, desc?: string, type: 'success'|'error'} | null>(null);
+
+  const showToast = (title: string, desc?: string, type: 'success' | 'error' = 'success') => {
+    setToastConfig({ title, desc, type });
+    setTimeout(() => {
+      setToastConfig(null);
+    }, 5000);
+  };
 
   // Form State
   const [weight, setWeight] = useState<string>('');
@@ -32,7 +40,7 @@ const App: React.FC = () => {
   // Handle export
   const exportData = () => {
     if (records.length === 0) {
-      console.warn('没有数据可供导出');
+      showToast('无法导出数据', '当前没有记录，请先添加健康数据后再尝试导出。', 'error');
       return;
     }
     const dataStr = JSON.stringify(records, null, 2);
@@ -45,6 +53,7 @@ const App: React.FC = () => {
     link.click();
     document.body.removeChild(link);
     URL.revokeObjectURL(url);
+    showToast('导出成功', '您的记录已成功下载。', 'success');
   };
 
   // Handle import
@@ -64,16 +73,19 @@ const App: React.FC = () => {
           if (isValid) {
             setRecords(imported.sort((a: any, b: any) => b.date.localeCompare(a.date)));
             if (imported.length > 0) setHeight(imported[0].height.toString());
-            // Optionally, we could show a custom toast here instead of window.alert
-            console.log('数据导入成功');
+            showToast('导入成功', `已成功导入 ${imported.length} 条记录。`, 'success');
           } else {
-            console.error('文件内容格式不正确，请确保它是 Health Pro 导出的标准 JSON。');
+            showToast(
+              '文件内容格式不匹配', 
+              '请确保您的 JSON 文件是由本应用导出的标准格式。每条记录需要包含 id, date, weight, height, 和 bmi 字段。', 
+              'error'
+            );
           }
         } else {
-          console.error('导入失败：文件应为 JSON 数组。');
+          showToast('文件格式错误', '导入的文件应为一个 JSON 数组 ([...])。', 'error');
         }
       } catch (err) {
-        console.error('解析文件失败，请检查文件格式。', err);
+        showToast('解析文件失败', '无法读取该文件，请检查该文件是否为有效的 .json 文本文件。', 'error');
       }
     };
     reader.readAsText(file);
@@ -153,24 +165,17 @@ const App: React.FC = () => {
 
   return (
     <Layout>
-      <header className="mb-8 animate-fade-in flex justify-between items-start">
+      <header className="mb-8 animate-fade-in flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 items-start">
         <div>
           <h1 className="text-4xl font-extrabold tracking-tight text-gray-900">Health Pro</h1>
           <p className="text-gray-500 font-medium">身体指标全记录</p>
         </div>
         <div className="flex items-center gap-2">
-          <button 
-            onClick={exportData}
-            className="p-2.5 bg-white text-gray-600 rounded-2xl shadow-sm border border-gray-100 hover:bg-gray-50 transition-all ios-button-active"
-            title="导出记录"
-          >
-            <Download size={20} />
-          </button>
           <label 
-            className="p-2.5 bg-white text-gray-600 rounded-2xl shadow-sm border border-gray-100 hover:bg-gray-50 transition-all ios-button-active cursor-pointer"
+            className="px-3 py-2 bg-white text-gray-700 text-xs font-bold rounded-2xl shadow-sm border border-gray-100 hover:bg-gray-50 transition-all ios-button-active cursor-pointer whitespace-nowrap"
             title="导入记录"
           >
-            <Upload size={20} />
+            导入数据
             <input 
               type="file" 
               accept=".json" 
@@ -179,6 +184,13 @@ const App: React.FC = () => {
               className="hidden" 
             />
           </label>
+          <button 
+            onClick={exportData}
+            className="px-3 py-2 bg-white text-gray-700 text-xs font-bold rounded-2xl shadow-sm border border-gray-100 hover:bg-gray-50 transition-all ios-button-active whitespace-nowrap"
+            title="导出记录"
+          >
+            导出数据
+          </button>
           {!isOnline && (
             <div className="bg-orange-50 text-orange-600 px-3 py-1 rounded-full text-[10px] font-bold flex items-center gap-1 border border-orange-100">
               <Zap size={10} /> 离线
@@ -325,19 +337,24 @@ const App: React.FC = () => {
         </div>
       </div>
 
-      {/* Add FAB */}
-      <button 
-        onClick={() => setIsModalOpen(true)}
-        className="fixed bottom-8 left-1/2 -translate-x-1/2 w-16 h-16 bg-blue-600 text-white rounded-full shadow-[0_15px_30px_rgba(0,122,255,0.4)] flex items-center justify-center hover:bg-blue-700 transition-all active:scale-90 z-40 ios-button-active"
-      >
-        <Plus size={32} />
-      </button>
+      {/* Add FAB Wrapper */}
+      <div className="fixed bottom-8 left-0 right-0 flex justify-center pointer-events-none z-40">
+        <button 
+          onClick={() => setIsModalOpen(true)}
+          className="w-16 h-16 bg-blue-600 text-white rounded-full shadow-[0_15px_30px_rgba(0,122,255,0.4)] flex items-center justify-center hover:bg-blue-700 transition-all active:scale-90 pointer-events-auto"
+        >
+          <Plus size={32} />
+        </button>
+      </div>
 
       {/* Input Modal */}
       {isModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-4 bg-black/50 backdrop-blur-md">
-          <div className="bg-white w-full max-w-md rounded-[40px] p-8 shadow-2xl animate-in slide-in-from-bottom duration-400">
-            <h2 className="text-2xl font-bold mb-8 text-gray-900 text-center">录入指标</h2>
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-md" onClick={() => setIsModalOpen(false)}>
+          <div 
+            onClick={(e) => e.stopPropagation()}
+            className="bg-white w-full max-w-md rounded-[32px] p-6 sm:p-8 shadow-2xl animate-in fade-in zoom-in-95 duration-200 max-h-[85vh] overflow-y-auto overflow-x-hidden"
+          >
+            <h2 className="text-2xl font-bold mb-6 text-gray-900 text-center">录入指标</h2>
             
             <div className="space-y-6">
               <div className="bg-gray-50 rounded-[24px] p-4">
@@ -390,6 +407,23 @@ const App: React.FC = () => {
                 </button>
               </div>
             </div>
+          </div>
+        </div>
+      )}
+      {/* Toast Notification */}
+      {toastConfig && (
+        <div className="fixed top-4 inset-x-0 z-[100] pointer-events-none flex justify-center animate-in fade-in slide-in-from-top duration-300">
+          <div className={`w-[90%] max-w-sm p-4 pointer-events-auto rounded-3xl shadow-xl flex items-start gap-3 ${toastConfig.type === 'error' ? 'bg-red-50 text-red-900 border border-red-100' : 'bg-green-50 text-green-900 border border-green-100'}`}>
+            <div className="mt-0.5 flex-shrink-0">
+              {toastConfig.type === 'error' ? <AlertCircle size={20} className="text-red-500" /> : <CheckCircle2 size={20} className="text-green-500" />}
+            </div>
+            <div className="flex-1 min-w-0">
+              <h3 className="font-bold text-sm tracking-tight">{toastConfig.title}</h3>
+              {toastConfig.desc && <p className="text-xs opacity-80 mt-1 leading-relaxed">{toastConfig.desc}</p>}
+            </div>
+            <button onClick={() => setToastConfig(null)} className="p-1 opacity-50 hover:opacity-100 transition-opacity flex-shrink-0">
+              <X size={16} />
+            </button>
           </div>
         </div>
       )}
