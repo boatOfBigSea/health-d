@@ -32,7 +32,7 @@ const App: React.FC = () => {
   // Handle export
   const exportData = () => {
     if (records.length === 0) {
-      alert('没有数据可供导出');
+      console.warn('没有数据可供导出');
       return;
     }
     const dataStr = JSON.stringify(records, null, 2);
@@ -60,22 +60,20 @@ const App: React.FC = () => {
         
         if (Array.isArray(imported)) {
           // Simple validation: check if elements have required properties
-          const isValid = imported.every(r => r.id && r.date && r.weight && r.height && r.bmi);
+          const isValid = imported.every((r: any) => r.id !== undefined && r.date !== undefined && r.weight !== undefined && r.height !== undefined && r.bmi !== undefined);
           if (isValid) {
-            if (confirm(`确定要导入 ${imported.length} 条记录吗？这将替换当前数据。`)) {
-              setRecords(imported.sort((a, b) => b.date.localeCompare(a.date)));
-              if (imported.length > 0) setHeight(imported[0].height.toString());
-              alert('数据导入成功');
-            }
+            setRecords(imported.sort((a: any, b: any) => b.date.localeCompare(a.date)));
+            if (imported.length > 0) setHeight(imported[0].height.toString());
+            // Optionally, we could show a custom toast here instead of window.alert
+            console.log('数据导入成功');
           } else {
-            alert('文件内容格式不正确，请确保它是 Health Pro 导出的标准 JSON。');
+            console.error('文件内容格式不正确，请确保它是 Health Pro 导出的标准 JSON。');
           }
         } else {
-          alert('导入失败：文件应为 JSON 数组。');
+          console.error('导入失败：文件应为 JSON 数组。');
         }
       } catch (err) {
-        console.error(err);
-        alert('解析文件失败，请检查文件格式。');
+        console.error('解析文件失败，请检查文件格式。', err);
       }
     };
     reader.readAsText(file);
@@ -176,6 +174,7 @@ const App: React.FC = () => {
             <input 
               type="file" 
               accept=".json" 
+              onClick={(e) => { e.currentTarget.value = ''; }}
               onChange={handleImport} 
               className="hidden" 
             />
