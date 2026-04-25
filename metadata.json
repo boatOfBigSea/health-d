@@ -1,0 +1,6 @@
+{
+  "name": "HealthTracker Pro",
+  "description": "A premium iOS-styled body metrics tracker featuring BMI calculation, visual analytics, and AI-powered health advice based on your history.",
+  "requestFramePermissions": [],
+  "majorCapabilities": []
+}

@@ -1,0 +1,71 @@
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --ios-blue: #007AFF;
+    --ios-bg: #F2F2F7;
+  }
+
+  body {
+    background-color: var(--ios-bg);
+    margin: 0;
+    padding: 0;
+    -webkit-tap-highlight-color: transparent;
+    -webkit-touch-callout: none;
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", sans-serif;
+    color: #1C1C1E;
+    overscroll-behavior-y: none;
+  }
+}
+
+@layer components {
+  /* 80x80 避让区：确保左上角原生返回按钮不遮挡内容 */
+  .safe-area-top-left {
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 100;
+    width: 80px;
+    height: 80px;
+    pointer-events: none;
+  }
+
+  /* iOS 标准毛玻璃效果 */
+  .glass-card {
+    background-color: rgba(255, 255, 255, 0.8);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 0.5px solid rgba(255, 255, 255, 0.4);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+  }
+
+  /* iOS 按钮点击缩放反馈 */
+  .ios-button-active:active {
+    transform: scale(0.96);
+    opacity: 0.8;
+    transition: all 0.1s ease-out;
+  }
+
+  .animate-fade-in {
+    animation: fadeIn 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+  }
+
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+}
+
+/* 隐藏滚动条以增强原生 App 感 */
+::-webkit-scrollbar {
+  display: none;
+}
