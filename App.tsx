@@ -349,10 +349,10 @@ const App: React.FC = () => {
 
       {/* Input Modal */}
       {isModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-start sm:items-center justify-center p-4 pt-20 sm:pt-4 bg-black/50 backdrop-blur-md" onClick={() => setIsModalOpen(false)}>
+        <div className="fixed inset-0 z-50 flex overflow-y-auto p-4 bg-black/50 backdrop-blur-md" onClick={() => setIsModalOpen(false)}>
           <div 
             onClick={(e) => e.stopPropagation()}
-            className="bg-white w-full max-w-md rounded-[32px] p-6 sm:p-8 shadow-2xl animate-in fade-in zoom-in-95 duration-200 max-h-[85vh] overflow-y-auto overflow-x-hidden"
+            className="bg-white m-auto w-full max-w-md rounded-[32px] p-6 sm:p-8 shadow-2xl animate-in fade-in zoom-in-95 duration-200 flex-shrink-0"
           >
             <h2 className="text-2xl font-bold mb-6 text-gray-900 text-center">录入指标</h2>
             
